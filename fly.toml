@@ -1,0 +1,40 @@
+# Fly.io deployment: three nodes from the same container image, one machine
+# per process group (node1/node2/node3), each with its own volume. Node
+# identity and peer addresses are derived at boot from Fly runtime env
+# (see docker-entrypoint.sh); peers talk Raft over 6PN private networking.
+app = "quorum-kv-frontier"
+primary_region = "lhr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  node1 = ""
+  node2 = ""
+  node3 = ""
+
+[[mounts]]
+  source = "data_node1"
+  destination = "/data"
+  processes = ["node1"]
+
+[[mounts]]
+  source = "data_node2"
+  destination = "/data"
+  processes = ["node2"]
+
+[[mounts]]
+  source = "data_node3"
+  destination = "/data"
+  processes = ["node3"]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  processes = ["node1", "node2", "node3"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

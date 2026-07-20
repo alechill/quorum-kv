@@ -1,0 +1,76 @@
+# Canonical verification environment: three independent nodes, each with its
+# own volume (no shared datastore), on a fixed-subnet network so the harness
+# can impose deterministic iptables partitions. NET_ADMIN is required for
+# those partitions; restart is "no" so the harness fully controls kills and
+# restarts (the *process* self-heals on container start — no operator action
+# beyond the machine coming back).
+x-node: &node
+  build: .
+  restart: "no"
+  cap_add:
+    - NET_ADMIN
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+    interval: 2s
+    timeout: 2s
+    retries: 30
+  environment: &node-env
+    BOOTSTRAP: "true"
+    PEERS: node1@node1:7000@http://node1:8080,node2@node2:7000@http://node2:8080,node3@node3:7000@http://node3:8080
+
+services:
+  node1:
+    <<: *node
+    container_name: quorum-node1
+    environment:
+      <<: *node-env
+      NODE_ID: node1
+      RAFT_ADVERTISE: node1:7000
+    ports:
+      - "8081:8080"
+    volumes:
+      - node1-data:/data
+    networks:
+      quorum:
+        ipv4_address: 172.28.0.11
+
+  node2:
+    <<: *node
+    container_name: quorum-node2
+    environment:
+      <<: *node-env
+      NODE_ID: node2
+      RAFT_ADVERTISE: node2:7000
+    ports:
+      - "8082:8080"
+    volumes:
+      - node2-data:/data
+    networks:
+      quorum:
+        ipv4_address: 172.28.0.12
+
+  node3:
+    <<: *node
+    container_name: quorum-node3
+    environment:
+      <<: *node-env
+      NODE_ID: node3
+      RAFT_ADVERTISE: node3:7000
+    ports:
+      - "8083:8080"
+    volumes:
+      - node3-data:/data
+    networks:
+      quorum:
+        ipv4_address: 172.28.0.13
+
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
+
+networks:
+  quorum:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24

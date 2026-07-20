@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    name: build + fault harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Unit tests (incl. checker self-checks)
+        run: |
+          go vet ./...
+          go test ./...
+
+      - name: Bring up the composed cluster
+        run: |
+          docker compose up -d --build --wait
+          docker compose ps
+
+      - name: Run verification harness (real kills + network partitions)
+        run: go run ./cmd/harness -duration 60s
+
+      - name: Upload harness artifacts (history, report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-out
+          path: harness/out/
+          if-no-files-found: ignore
+
+  deploy:
+    name: deploy to Fly.io + smoke check
+    needs: verify
+    runs-on: ubuntu-latest
+    concurrency: fly-deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy (same image to all three nodes)
+        run: flyctl deploy --remote-only --ha=false --wait-timeout 300
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Post-deploy smoke check (write via one node, read via another)
+        run: ./scripts/fly-smoke.sh
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

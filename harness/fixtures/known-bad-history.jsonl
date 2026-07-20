@@ -1,0 +1,3 @@
+{"client":1,"op":"put","key":"k","value":"a","start_ns":10,"end_ns":20,"outcome":"ok","ok":true}
+{"client":1,"op":"put","key":"k","value":"b","start_ns":30,"end_ns":40,"outcome":"ok","ok":true}
+{"client":2,"op":"get","key":"k","start_ns":50,"end_ns":60,"outcome":"ok","ok":true,"present":true,"ret_val":"a"}

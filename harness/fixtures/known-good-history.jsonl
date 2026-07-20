@@ -1,0 +1,8 @@
+{"client":1,"op":"put","key":"k","value":"a","start_ns":10,"end_ns":20,"outcome":"ok","ok":true}
+{"client":2,"op":"get","key":"k","start_ns":15,"end_ns":25,"outcome":"ok","ok":true,"present":true,"ret_val":"a"}
+{"client":1,"op":"cas","key":"k","expect":"a","value":"b","start_ns":30,"end_ns":40,"outcome":"ok","ok":true}
+{"client":3,"op":"cas","key":"k","expect":"a","value":"c","start_ns":45,"end_ns":65,"outcome":"ok","ok":false,"present":true,"ret_val":"b"}
+{"client":2,"op":"get","key":"k","start_ns":50,"end_ns":60,"outcome":"ok","ok":true,"present":true,"ret_val":"b"}
+{"client":2,"op":"delete","key":"k","start_ns":70,"end_ns":80,"outcome":"ok","ok":true,"present":true}
+{"client":3,"op":"put","key":"k","value":"z","start_ns":85,"end_ns":88,"outcome":"unknown"}
+{"client":2,"op":"get","key":"k","start_ns":90,"end_ns":95,"outcome":"ok","ok":true,"present":false}
