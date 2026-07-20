@@ -1,0 +1,2 @@
+# NEVER remove .env.claude-box from the ignore list - contains secrets
+.env.claude-box
