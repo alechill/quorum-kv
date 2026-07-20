@@ -39,6 +39,8 @@ jobs:
   deploy:
     name: deploy to Fly.io + smoke check
     needs: verify
+    # Deploys run only from the canonical public repo; mirrors just verify.
+    if: github.repository == 'alechill/quorum-kv'
     runs-on: ubuntu-latest
     concurrency: fly-deploy
     steps:
