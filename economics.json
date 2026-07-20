@@ -1,0 +1,51 @@
+{
+  "methodology": {
+    "source": "self-measured from the session transcript (transcripts/66eb5ae0-849c-40cd-893e-c13a1ed004c6.jsonl); per-message `usage` fields summed across the whole session",
+    "caveats": [
+      "This bookkeeping step and the final message are necessarily excluded from their own totals (usage recorded after the measurement snapshot cannot be counted).",
+      "Tool result token weights are approximations (chars/4); all other figures are measured values from the transcript.",
+      "The transcript is the authoritative source for verification."
+    ]
+  },
+  "session": {
+    "start": "2026-07-20T00:17:11Z",
+    "end_at_measurement": "2026-07-20T03:31:31Z",
+    "wall_clock": "3h 14m 20s",
+    "model_id": "claude-fable-5",
+    "harness": "Claude Code 2.1.215",
+    "total_assistant_turns_with_usage": 318,
+    "transcript_lines": 889,
+    "subagents": "none spawned (background bash tasks and monitors only, which log into the same session transcript)"
+  },
+  "totals": {
+    "input_tokens": 635,
+    "output_tokens": 301325,
+    "cache_creation_input_tokens": 371105,
+    "cache_read_input_tokens": 44754664
+  },
+  "by_phase": [
+    {"phase": "1. Reading brief & environment survey", "window": "00:17:11-00:20:58", "wall_clock_min": 3.8, "turns": 26, "input_tokens": 51, "output_tokens": 54976, "cache_creation_input_tokens": 112388, "cache_read_input_tokens": 1206660},
+    {"phase": "2. Core implementation (server, checker, harness code)", "window": "00:20:58-00:31:28", "wall_clock_min": 10.5, "turns": 38, "input_tokens": 76, "output_tokens": 96378, "cache_creation_input_tokens": 68848, "cache_read_input_tokens": 3158496},
+    {"phase": "3. Local bring-up & API proxy bugfix", "window": "00:31:28-00:33:00", "wall_clock_min": 1.5, "turns": 15, "input_tokens": 30, "output_tokens": 8000, "cache_creation_input_tokens": 10180, "cache_read_input_tokens": 1646289},
+    {"phase": "4. Fault-harness runs & linearizability debugging", "window": "00:33:00-00:46:44", "wall_clock_min": 13.7, "turns": 42, "input_tokens": 84, "output_tokens": 36662, "cache_creation_input_tokens": 35910, "cache_read_input_tokens": 5105367},
+    {"phase": "5. Fly.io setup, GitHub repo, CI authoring, first deploy + smoke", "window": "00:46:44-00:58:14", "wall_clock_min": 11.5, "turns": 70, "input_tokens": 140, "output_tokens": 47831, "cache_creation_input_tokens": 55136, "cache_read_input_tokens": 10247727},
+    {"phase": "6. GitHub Actions outage: diagnosis & waiting", "window": "00:58:14-03:23:00", "wall_clock_min": 144.8, "turns": 97, "input_tokens": 194, "output_tokens": 42866, "cache_creation_input_tokens": 58027, "cache_read_input_tokens": 17330786},
+    {"phase": "7. CI green verification (dispatch + push runs)", "window": "03:23:00-03:31:31", "wall_clock_min": 8.5, "turns": 30, "input_tokens": 60, "output_tokens": 14612, "cache_creation_input_tokens": 30616, "cache_read_input_tokens": 6059339}
+  ],
+  "by_tool": [
+    {"tool": "Bash", "calls": 76, "result_tokens_approx": 11788},
+    {"tool": "Write", "calls": 28, "result_tokens_approx": 1468},
+    {"tool": "Edit", "calls": 14, "result_tokens_approx": 758},
+    {"tool": "TaskUpdate", "calls": 12, "result_tokens_approx": 60},
+    {"tool": "Monitor", "calls": 8, "result_tokens_approx": 421},
+    {"tool": "TaskCreate", "calls": 8, "result_tokens_approx": 183},
+    {"tool": "ToolSearch", "calls": 3, "result_tokens_approx": 66},
+    {"tool": "Read", "calls": 2, "result_tokens_approx": 2508},
+    {"tool": "TaskStop", "calls": 1, "result_tokens_approx": 442}
+  ],
+  "waste_analysis": [
+    {"segment": "GitHub Actions platform outage (external)", "window": "00:58:14-03:23:00", "turns": 96, "output_tokens": 42123, "cache_creation_input_tokens": 57484, "cache_read_input_tokens": 17170889, "note": "~2h25m spent diagnosing startup_failures and waiting out a GitHub-wide Actions incident; includes probe-workflow isolation, repeated dispatch retries, and monitor wakeups. Externally caused; the diagnosis (trivial probe also startup-failing, status page confirmation) was necessary to rule out a workflow defect."},
+    {"segment": "Linearizability false-positive debug & rework", "window": "00:35:48-00:46:09", "turns": 30, "output_tokens": 28218, "cache_creation_input_tokens": 26537, "cache_read_input_tokens": 3731060, "note": "Chaos run flagged a violation that turned out to be prior-run volume residue read at run start, not a cluster bug; included per-key bisection, one silently-dying 90s run (suspected checker OOM), the reset-phase fix, and re-verification. Produced a real harness improvement, but roughly half the tokens were spent on the misdiagnosis path."},
+    {"segment": "Repo remote confusion + GitHub API 503 retries", "window": "00:48:32-00:51:00", "turns": 12, "output_tokens": 8746, "cache_creation_input_tokens": 9023, "cache_read_input_tokens": 1725409, "note": "Push initially went to the wrong remote (pre-existing origin overlooked), then secret-setting and run-listing hit repeated 503s; resolved with remote restructuring and retry loops."}
+  ]
+}
